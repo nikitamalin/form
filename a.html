@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fleet Savings Calculator</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: #2a7b7b;
+        border-radius: 30px;
+        padding: 60px;
+        max-width: 1200px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      h1 {
+        color: white;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        text-align: center;
+        font-weight: 700;
+      }
+
+      .subtitle {
+        color: white;
+        font-size: 1.1rem;
+        text-align: center;
+        margin-bottom: 50px;
+        font-weight: 300;
+      }
+
+      .form-section {
+        display: none;
+      }
+
+      .form-section.active {
+        display: block;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-bottom: 35px;
+      }
+
+      .form-group {
+        margin-bottom: 30px;
+      }
+
+      .form-group.full-width {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        display: block;
+        color: white;
+        font-size: 1rem;
+        margin-bottom: 15px;
+        font-weight: 500;
+      }
+
+      .required {
+        color: #ff6b6b;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      input[type="email"],
+      input[type="tel"],
+      select {
+        width: 100%;
+        padding: 15px 20px;
+        border: none;
+        border-radius: 50px;
+        font-size: 1rem;
+        background: white;
+        outline: none;
+        transition: box-shadow 0.3s;
+      }
+
+      input[type="text"]:focus,
+      input[type="number"]:focus,
+      input[type="email"]:focus,
+      input[type="tel"]:focus,
+      select:focus {
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+      }
+
+      select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 20px center;
+        padding-right: 45px;
+      }
+
+      .checkbox-group,
+      .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .checkbox-label,
+      .radio-label {
+        display: flex;
+        align-items: center;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      input[type="checkbox"],
+      input[type="radio"] {
+        width: 24px;
+        height: 24px;
+        margin-right: 12px;
+        cursor: pointer;
+        accent-color: #45d4d4;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 12px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        margin: 50px 0 40px 0;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ff6b35 0%, #f7931e 100%);
+        border-radius: 10px;
+        transition: width 0.3s ease;
+      }
+
+      .progress-text {
+        color: #ff6b35;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 40px;
+      }
+
+      button {
+        padding: 15px 50px;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .btn-primary {
+        background: white;
+        color: #45d4d4;
+      }
+
+      .btn-secondary {
+        background: white;
+        color: #45d4d4;
+      }
+
+      .btn-secondary:disabled {
+        opacity: 0;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      .savings-result {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 40px;
+        margin: 30px 0;
+        text-align: center;
+      }
+
+      .savings-result h2 {
+        color: white;
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+      }
+
+      .savings-result p {
+        color: white;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+      }
+
+      .savings-amount {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: #45d4d4;
+        margin: 30px 0;
+      }
+
+      .disclaimer {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-top: 30px;
+      }
+
+      .phone-input-container {
+        display: flex;
+        gap: 10px;
+      }
+
+      .country-select {
+        width: 80px;
+        padding: 15px 10px;
+      }
+
+      .phone-input {
+        flex: 1;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 30px;
+        }
+
+        h1 {
+          font-size: 1.8rem;
+        }
+
+        .subtitle {
+          font-size: 1rem;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        button {
+          padding: 12px 30px;
+          font-size: 1rem;
+        }
+
+        .savings-amount {
+          font-size: 2.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Discover Your's Fleet's Hidden Cost Savings</h1>
+      <p class="subtitle">
+        Estimate how much you could save on Fuel and Toll payments by switching
+        to Car IQ Pay.
+      </p>
+
+      <!-- Section 1: Basic Fleet Info -->
+      <div class="form-section active" data-section="1">
+        <div class="form-row">
+          <div class="form-group">
+            <label
+              >How Many vehicles are in your fleet<span class="required"
+                >*</span
+              ></label
+            >
+            <input type="number" id="fleetSize" placeholder="" required />
+          </div>
+          <div class="form-group">
+            <label
+              >What is your total monthly fuel spend?<span class="required"
+                >*</span
+              ></label
+            >
+            <input type="text" id="fuelSpend" placeholder="" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label
+              >What types of vehicles are in your fleet?<span class="required"
+                >*</span
+              ></label
+            >
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" name="vehicleType" value="light-duty" />
+                Light-Duty
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" name="vehicleType" value="medium-duty" />
+                Medium Duty
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" name="vehicleType" value="heavy-duty" />
+                Heavy Duty
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" name="vehicleType" value="specialty" />
+                Specialty
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Type of Service Area<span class="required">*</span></label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="serviceArea" value="rural" />
+                Rural
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="serviceArea" value="small-city" />
+                Small City
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="serviceArea" value="large-city" />
+                Large City
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label>How do you currently Manage tolls</label>
+          <select id="tollManagement">
+            <option value="">Select an option</option>
+            <option value="manual">Manual/Cash</option>
+            <option value="transponder">Transponder</option>
+            <option value="fleet-card">Fleet Card</option>
+            <option value="third-party">Third-party Service</option>
+            <option value="none">No tolls</option>
+          </select>
+        </div>
+
+        <div class="progress-text">25%</div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 25%"></div>
+        </div>
+
+        <div class="button-container">
+          <button class="btn-secondary" disabled>Previous</button>
+          <button class="btn-primary" onclick="nextSection(2)">Next</button>
+        </div>
+      </div>
+
+      <!-- Section 2: Fuel & Card Usage -->
+      <div class="form-section" data-section="2">
+        <div class="form-row">
+          <div class="form-group">
+            <label
+              >How often do your drivers fuel up at premium-priced stations when
+              cheaper options are available?</label
+            >
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="premiumFrequency" value="often" />
+                Often
+              </label>
+              <label class="radio-label">
+                <input
+                  type="radio"
+                  name="premiumFrequency"
+                  value="occasionally"
+                />
+                Occasionally
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="premiumFrequency" value="rarely" />
+                Rarely
+              </label>
+              <label class="radio-label">
+                <input
+                  type="radio"
+                  name="premiumFrequency"
+                  value="almost-always"
+                />
+                Almost always
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label
+              >How much card misuse do you think is happening in your
+              fleet?</label
+            >
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="cardMisuse" value="none" />
+                None
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="cardMisuse" value="some" />
+                Some
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="cardMisuse" value="moderate" />
+                Moderate
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="cardMisuse" value="high" />
+                High
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label
+            >How much time do you spend weekly managing your fuel card
+            program?</label
+          >
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="managementTime" value="0-2" />
+              0-2 hours
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="managementTime" value="3-5" />
+              3-5 hours
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="managementTime" value="6-10" />
+              6-10 hours
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="managementTime" value="10+" />
+              10+ hours
+            </label>
+          </div>
+        </div>
+
+        <div class="progress-text">50%</div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 50%"></div>
+        </div>
+
+        <div class="button-container">
+          <button class="btn-secondary" onclick="prevSection(1)">
+            Previous
+          </button>
+          <button class="btn-primary" onclick="calculateSavings()">
+            Show Breakdown
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 3: Savings Result -->
+      <div class="form-section" data-section="3">
+        <div class="savings-result">
+          <h2>Your estimated savings</h2>
+          <p>Based on your entries, we estimate you can save up:</p>
+          <div class="savings-amount" id="savingsAmount">$0</div>
+          <p class="disclaimer">
+            Savings not guaranteed. Actual savings may vary depending on fleet
+            size, operational usage, geographic location, and other variables.
+            Estimates are derived from internal analyses of fleets utilizing Car
+            IQ, supplemented by independent third-party market research.
+          </p>
+        </div>
+
+        <div class="progress-text">75%</div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 75%"></div>
+        </div>
+
+        <div class="button-container">
+          <button class="btn-secondary" onclick="prevSection(2)">
+            Previous
+          </button>
+          <button class="btn-primary" onclick="nextSection(4)">Next</button>
+        </div>
+      </div>
+
+      <!-- Section 4: Contact Information -->
+      <div class="form-section" data-section="4">
+        <p class="subtitle">
+          Enter your information below to get the full cost breakdown.
+        </p>
+
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="email" required />
+        </div>
+
+        <div class="form-group">
+          <label>Phone Number</label>
+          <div class="phone-input-container">
+            <select class="country-select">
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+44">🇬🇧 +44</option>
+              <option value="+91">🇮🇳 +91</option>
+            </select>
+            <input type="tel" id="phone" class="phone-input" placeholder="" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>First name</label>
+            <input type="text" id="firstName" required />
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" id="lastName" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="title" />
+        </div>
+
+        <div class="progress-text">100%</div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 100%"></div>
+        </div>
+
+        <div class="button-container">
+          <button class="btn-secondary" onclick="prevSection(3)">
+            Previous
+          </button>
+          <button class="btn-primary" onclick="submitForm()">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function nextSection(sectionNumber) {
+        // Hide all sections
+        document.querySelectorAll(".form-section").forEach((section) => {
+          section.classList.remove("active");
+        });
+
+        // Show target section
+        document
+          .querySelector(`[data-section="${sectionNumber}"]`)
+          .classList.add("active");
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function prevSection(sectionNumber) {
+        nextSection(sectionNumber);
+      }
+
+      function calculateSavings() {
+        // Get form values
+        const fleetSize =
+          parseInt(document.getElementById("fleetSize").value) || 0;
+        const fuelSpendStr = document
+          .getElementById("fuelSpend")
+          .value.replace(/[$,]/g, "");
+        const fuelSpend = parseFloat(fuelSpendStr) || 0;
+
+        // Get selected options
+        const premiumFrequency =
+          document.querySelector('input[name="premiumFrequency"]:checked')
+            ?.value || "rarely";
+        const cardMisuse =
+          document.querySelector('input[name="cardMisuse"]:checked')?.value ||
+          "none";
+        const managementTime =
+          document.querySelector('input[name="managementTime"]:checked')
+            ?.value || "0-2";
+
+        // Calculate base savings (simplified formula)
+        let savingsPercentage = 0.05; // Base 5%
+
+        // Adjust based on premium frequency
+        if (premiumFrequency === "often") savingsPercentage += 0.08;
+        else if (premiumFrequency === "occasionally") savingsPercentage += 0.05;
+        else if (premiumFrequency === "almost-always")
+          savingsPercentage += 0.12;
+
+        // Adjust based on card misuse
+        if (cardMisuse === "some") savingsPercentage += 0.03;
+        else if (cardMisuse === "moderate") savingsPercentage += 0.06;
+        else if (cardMisuse === "high") savingsPercentage += 0.1;
+
+        // Adjust based on management time
+        if (managementTime === "3-5") savingsPercentage += 0.02;
+        else if (managementTime === "6-10") savingsPercentage += 0.04;
+        else if (managementTime === "10+") savingsPercentage += 0.06;
+
+        // Calculate annual savings
+        const monthlySavings = fuelSpend * savingsPercentage;
+        const annualSavings = monthlySavings * 12;
+
+        // Format and display
+        const formattedSavings = new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(annualSavings);
+
+        document.getElementById("savingsAmount").textContent = formattedSavings;
+
+        // Move to results section
+        nextSection(3);
+      }
+
+      function submitForm() {
+        const email = document.getElementById("email").value;
+        const phone = document.getElementById("phone").value;
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const title = document.getElementById("title").value;
+
+        // Validate required fields
+        if (!email || !firstName || !lastName) {
+          alert("Please fill in all required fields");
+          return;
+        }
+
+        // In a real application, you would send this data to your server
+        console.log("Form submitted:", {
+          email,
+          phone,
+          firstName,
+          lastName,
+          title,
+          fleetSize: document.getElementById("fleetSize").value,
+          fuelSpend: document.getElementById("fuelSpend").value,
+          // ... other form data
+        });
+
+        alert(
+          "Thank you! Your information has been submitted. We will send you the full breakdown shortly."
+        );
+      }
+
+      // Format currency input
+      document
+        .getElementById("fuelSpend")
+        .addEventListener("input", function (e) {
+          let value = e.target.value.replace(/[^0-9]/g, "");
+          if (value) {
+            value = parseInt(value).toLocaleString("en-US");
+            e.target.value = "$" + value;
+          }
+        });
+    </script>
+  </body>
+</html>
